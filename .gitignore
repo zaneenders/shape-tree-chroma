@@ -1,0 +1,7 @@
+.env
+# Swift
+Package.resolved
+/.build
+/.swiftpm
+# Annoying Mac File
+.DS_Store
