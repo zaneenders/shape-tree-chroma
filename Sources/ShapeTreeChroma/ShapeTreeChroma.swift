@@ -37,7 +37,7 @@ struct ShapeTreeChroma {
     event_loop: for await ev in Wayland.events() {
       switch ev {
       case .frame(let winH, let winW):
-        let screen = Window(o: .vertical, words: entries.map { $0.content })
+        let screen = Window(name: name, o: .vertical, words: entries.map { $0.content })
         Wayland.drawFrame((height: winH, width: winW), screen)
       case .key(let code, let keyState):
         switch (code, keyState) {
