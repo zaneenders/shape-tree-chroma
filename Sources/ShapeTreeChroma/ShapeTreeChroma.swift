@@ -1,4 +1,5 @@
 import Configuration
+import Foundation
 import Logging
 import ShapeTreeShared
 import Wayland
@@ -17,12 +18,13 @@ struct ShapeTreeChroma {
       logger.critical("No PASSWORD laoded")
       return
     }
+    logger.trace("Connecting client...")
     let client = ShapeTreeClient()
 
     var entries: [Entry] = []
     do {
       try await client.login(name: name, password: password)
-      entries = try await client.getEntries(Day.today)
+      entries = try await client.getEntries()
       for entry in entries {
         logger.trace("\(entry.content)")
       }
@@ -48,13 +50,14 @@ struct ShapeTreeChroma {
             logger.trace("sending entry: \(entry)")
             try await client.createEntry(entry)
             logger.trace("entry: \(entry) created")
-            entries = try await client.getEntries(Day.today)
+            entries = try await client.getEntries()
             logger.trace("entries updated")
           }
         case (_, 1):
           logger.trace("code: \(code), keyState: \(keyState)")
           Task {
-            entries = try await client.getEntries(Day.today)
+            entries = try await client.getEntries()
+            logger.trace("\(entries.count)")
           }
         case (_, _):
           ()
@@ -68,5 +71,12 @@ struct ShapeTreeChroma {
     case .running, .exit:
       ()
     }
+  }
+}
+
+extension ShapeTreeClient {
+  func getEntries() async throws -> [Entry] {
+    let date = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+    return try await self.getEntries(date.day!)
   }
 }
